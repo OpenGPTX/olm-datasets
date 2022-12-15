@@ -1,8 +1,11 @@
 ![olm_cc_pipeline](https://user-images.githubusercontent.com/20826878/199851707-64a7a026-c413-4d78-8b04-a825e07534b3.jpeg)
 
 # Quick start
-
 This section provides all the commands that you need to generate a deduplicated and filtered dataset from Common Crawl, ready for pretraining!
+## Start on HPC system Taurus
+Please make sure you've done the `setup.py` and followed all the instruction in the root dir of this repo before you start with preprocessing!
+Before every use, activate the needed environment by `source activate.sh` directly from your workspace dir.
+Detailed Informations can be found [here](https://github.com/OpenGPTX/olm-datasets).
 
 ## One time only
 
@@ -18,21 +21,26 @@ python get_hf_dataset_from_parquet --input_dir=/scratch/ws/0/s6690609-traindata/
 python remove_wikipedia_urls.py --input_dataset_name=cc_raw --output_dataset_name=cc_no_wikipedia --url_column=source --split=train --num_proc=128
 
 ```
-Cleaning and filtering of the data afterwards via the Crowdsourced data filtering from BigScience. The needed CLI Arguments are about to be documented here.
-At the moment, have a loook at the script itself
+Cleaning and filtering of the data afterwards via the Crowdsourced data filtering from BigScience.
 
 ```
-python /beegfs/ws/0/s6690609-data-pipeline/olm-datasets/pipeline_scripts/common_crawl/data-preparation/preprocessing/training/01a_catalogue_cleaning_and_filtering 
+python data-preparation/preprocessing/training/01a_catalogue_cleaning_and_filtering/clean.py \
+--dataset-path=cc_no_wikipedia \
+--load-arrow-file \
+--preprocessings "replace_newline_with_space" "remove_lines_with_code" \
+--save-path=cc_filtered 
 ```
 Latest, the deduplication used, is agian the Bloom deduplication used for OSCAR.
 ```
 ulimit -Sn 1000000 && python deduplicate.py --input_dataset_name=cc_filtered --output_dataset_name=cc_olm --text_column=text --remove_whole_example --num_proc=224
+```
 
-# Optionally, get the last-modified headers from the websites and add them to the dataset. --segment_sampling_ratios and --seed must be the same as above for this to work.
+Optionally, get the last-modified headers from the websites and add them to the dataset. --segment_sampling_ratios and --seed must be the same as above for 
+this to work.
+```
 python download_common_crawl.py --snapshots CC-MAIN-2022-33 --segment_sampling_ratios 0.0001 --seed=42 --download_dir=common_crawl_wat_downloads --paths_type=wat --num_proc=224
 python get_last_modified_dataset_from_wat_downloads.py --download_dir=common_crawl_wat_downloads --output_dataset_name=cc_raw_last_modified --num_proc=224
 python combine_last_modified_with_text_dataset.py --text_dataset_name=cc_olm --last_modified_dataset_name=cc_raw_last_modified --output_dataset_name=cc_olm_with_last_modified --url_column=url --crawl_timestamp_column=crawl_timestamp --last_modified_timestamp_column=last_modified_timestamp --num_proc=224
-
 ```
 
 You can then upload the final dataset to the Hugging Face Hub from a Python terminal like this:
