@@ -21,14 +21,15 @@ python get_hf_dataset_from_parquet --input_dir=/scratch/ws/0/s6690609-traindata/
 python remove_wikipedia_urls.py --input_dataset_name=cc_raw --output_dataset_name=cc_no_wikipedia --url_column=source --split=train --num_proc=128
 
 ```
-Cleaning and filtering of the data afterwards via the Crowdsourced data filtering from BigScience.
+Cleaning and filtering of the data afterwards via the Crowdsourced data filtering from BigScience with all currently working filters and mappings:
 
 ```
 python data-preparation/preprocessing/training/01a_catalogue_cleaning_and_filtering/clean.py \
---dataset-path=cc_no_wikipedia \
+--dataset-path=hf_dataset_de  \
 --load-arrow-file \
---preprocessings "replace_newline_with_space" "remove_lines_with_code" \
---save-path=cc_filtered 
+--preprocessings "replace_newline_with_space" "remove_lines_with_code" "remove_html_spans" "remove_html_spans_sanad" "remove_wiki_mojibake" "strip_substrings_en_wiktionary" "filter_remove_empty_docs"  "filter_small_docs" \
+--save-path=cc_filtered \
+--batch-size=5
 ```
 Latest, the deduplication used, is agian the Bloom deduplication used for OSCAR.
 ```
