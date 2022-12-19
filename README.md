@@ -12,6 +12,29 @@ This code is also fairly parallelized, although it can certianly be improved fur
 * A machine with a lot of CPUs and memory.
 * A fast internet connection.
 
+
+## Setup on HPC System Taurus
+Before working with this Pipeline on Taurus, allocate a workspace, clone the repository into it and copy the needed setup scripts to your workspace.
+The next steps need to be executed from your workspace directory!
+```
+ws_allocate -F beegfs -r 7 -m username@tu-dresden.de Dataset-pipe 30
+cd path/to/Dataset-pipe
+git clone git@github.com:OpenGPTX/olm-datasets.git 
+cp setup.sh .
+cp activate.sh .
+```
+For executing the Setup (and all processing steps) allocate resources first:
+```
+srun --pty --ntasks=1 --cpus-per-task=4 --time=1:00:00 --mem-per-cpu=1700 bash -l
+```
+Afterwards, do the setup:
+```
+bash setup.sh
+source activate.sh
+```
+## Working with the Pipeline
+Before working with it, allocate resources first and execute `source activate.sh` everytime youhave a new session.
+
 ## Setup
 1. If you want to use this repo to generate a decent amount of data, get a machine with lots of CPUs and memory. We use an `n2d-standard-224` running `Ubuntu 20.04 LTS` on GCP. Add Terabytes of disk space too. You may need an even larger machine if you want to process close to 100% of a Common Crawl snapshot or several snapshots, particularly due to how much memory the deduplication process uses.
 2. Clone with submodules: `git clone --recursive git@github.com:huggingface/olm-datasets.git`
