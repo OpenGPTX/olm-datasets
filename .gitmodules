@@ -1,6 +1,6 @@
 [submodule "data-preparation"]
 	path = pipeline_scripts/common_crawl/data-preparation
-	url = https://github.com/bigscience-workshop/data-preparation.git
+	url = https://github.com/OpenGPTX/data-preparation.git
 [submodule "deduplicate-text-datasets"]
 	path = pipeline_scripts/common_crawl/deduplicate-text-datasets
 	url = https://github.com/TristanThrush/deduplicate-text-datasets.git
