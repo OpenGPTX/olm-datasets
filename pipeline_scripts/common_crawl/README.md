@@ -18,11 +18,19 @@ Detailed Informations can be found [here](https://github.com/OpenGPTX/olm-datase
 
 ## Every time
 
+### On Taurus
+Allocate Resources - You will allloacte a complete node here! If you want to test things on small datasets, use only ``
+```
+srun --pty --partition romeo --ntasks=1 --cpus-per-task=128 --time=2:00:00 --mem-per-cpu=1972 bash -l
+cd path/to/workspace
+source activate.sh
+```
+
 Use the following commands to get a dataset. They should take only a few min if you have lots of CPUs. Adjust `--num_proc` to be equal to however many CPUs that you have.
 For creating the raw HF dataset and removing Wikipedia URLS (if needed) do the following:
 
 ```
-python get_hf_dataset_from_parquet --input_dir=/scratch/ws/0/s6690609-traindata/generated_corpuses/20221121 --output_dataset_name=cc_raw --num_proc=128 
+python get_hf_dataset_from_parquet.py --input_dir=/scratch/ws/0/s6690609-traindata/generated_corpuses/20221121 --output_dataset_name=cc_raw --num_proc=128 
 python remove_wikipedia_urls.py --input_dataset_name=cc_raw --output_dataset_name=cc_no_wikipedia --url_column=source --split=train --num_proc=128
 
 ```
