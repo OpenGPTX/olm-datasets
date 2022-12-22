@@ -30,7 +30,8 @@ else
 fi
 
 #setup from repo
-cargo install ungoliant@1.2.3
+#probably not needed anymore
+#cargo install ungoliant@1.2.3
 # reinstall in activated env to prevent using module from /home 
 pip install -r olm-datasets/requirements.txt 
 
