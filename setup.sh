@@ -46,6 +46,6 @@ export INDIC_RESOURCES_PATH=$WORKING_DIR/indic_nlp_resources
 
 #download the stanza models, needed for filtering
 STANZA_RES=$WORKING_DIR/stanza_models
-python stanza_download.py
+python olm-datasets/stanza_download.py
 
 echo 'DONE!'
