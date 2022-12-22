@@ -20,8 +20,8 @@ The next steps need to be executed from your workspace directory!
 ws_allocate -F beegfs -r 7 -m username@tu-dresden.de Dataset-pipe 30
 cd path/to/Dataset-pipe
 git clone --recursive git@github.com:OpenGPTX/olm-datasets.git 
-cp setup.sh .
-cp activate.sh .
+cp olm-datasets/setup.sh .
+cp olm-datasets/activate.sh .
 ```
 For executing the Setup (and all processing steps) allocate resources first:
 ```
