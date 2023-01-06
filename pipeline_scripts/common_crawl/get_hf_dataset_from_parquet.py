@@ -8,6 +8,7 @@ from shutil import move, rmtree
 import dateutil
 import glob
 import argparse
+import os
 
 parser = argparse.ArgumentParser(description="Turns downloads from download_common_crawl.py into a Hugging Face dataset, split by language (language is identified using a FastText model). The dataset has a timestamp column for the time it was crawled, along with a url column and, of course, a text column.")
 parser.add_argument("--input_dir", help="The directory of the .parquet files", required=True)
@@ -18,8 +19,7 @@ args = parser.parse_args()
 
 
 
-#not parallelized reading of parquet files, #TODO use multiprocessing and splitting from get_text_dataset_from_wet_downloads.py for
-ds = load_dataset(args.input_dir)
+ds = load_dataset(args.input_dir,num_proc=args.num_proc)
 
 #from here serial
 #TODO:have languges as an parsing argument and iterate over languages list, filter for every language and save
