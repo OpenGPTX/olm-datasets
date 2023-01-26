@@ -9,6 +9,12 @@ import dateutil
 import glob
 import argparse
 import os
+import concurrent
+import time
+import uuid
+from multiprocessing import Process
+
+t0 = time.time()
 
 parser = argparse.ArgumentParser(description="Turns downloads from download_common_crawl.py into a Hugging Face dataset, split by language (language is identified using a FastText model). The dataset has a timestamp column for the time it was crawled, along with a url column and, of course, a text column.")
 parser.add_argument("--input_dir", help="The directory of the .parquet files", required=True)
@@ -19,19 +25,42 @@ args = parser.parse_args()
 
 
 
-ds = load_dataset(args.input_dir,num_proc=args.num_proc)
+input_dir = args.input_dir
+output_dir = args.output_dataset_name
 
-#from here serial
-#TODO:have languges as an parsing argument and iterate over languages list, filter for every language and save
-ds1 = ds.filter(lambda example: example["language"]=='de')
-ds2 = ds.filter(lambda example: example["language"]=='en')
-#TODO split datasets by language and create seperate language datasets
-# ds.filter....
-ds1.save_to_disk(args.output_dataset_name+'_de')
-ds2.save_to_disk(args.output_dataset_name+'_en')
 
-if args.push_to_hub:
-    ds.push_to_hub(args.output_dataset_name)
 
-#Goal file structure: (datasets[train[en[hf_ds],de[hf_ds]],[validation[en[hf_ds],de[hf_ds]]]]) 
-#situation: just take parquet files and create hf dataset from it in one train and one val folder
+def list_folders(directory):
+    # Get a list of all the files in the directory
+    all_files = os.listdir(directory)
+    # Initialize an empty list to store the folders
+    folders = []
+    # Iterate through the files in the directory
+    for file in all_files:
+        # Check if the file is a directory
+        if os.path.isdir(os.path.join(directory, file)):
+            # If it is, append it to the list of folders
+            folders.append(file)
+    # Return the list of folders
+    return folders
+
+chunks_dir = list_folders(input_dir)
+
+
+def data_pipeline(input_dir,chunk_dir):
+    ds = load_dataset(input_dir+'/'+chunk_dir)
+    ds_de = ds.filter(lambda example: example["language"]=='de')
+    ds_en = ds.filter(lambda example: example["language"]=='en')
+    ds_de.save_to_disk('results/de/'+output_dir+'_de_'+str(uuid.uuid4()))
+    ds_en.save_to_disk('results/en/'+output_dir+'_en_'+str(uuid.uuid4()))
+
+
+for each_dir in chunks_dir:
+        Process(target=data_pipeline, args=(input_dir,each_dir,)).start()
+
+
+t1 = time.time()
+print(f"Performance time {t1-t0}")
+
+
+

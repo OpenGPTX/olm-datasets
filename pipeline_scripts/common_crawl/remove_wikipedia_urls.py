@@ -1,5 +1,8 @@
 from datasets import load_dataset, load_from_disk
 import argparse
+import os 
+from multiprocessing import Process 
+
 
 parser = argparse.ArgumentParser(description="Removes all examples from a Hugging Face dataset if they have a Wikipedia URL. This script is intened to be used if you eventually want to merge the dataset with a Wikipedia snapshot. In that case, examples from Wikipedia in this dataset are redundant.")
 parser.add_argument("--input_dataset_name", help="Input dataset name.", required=True)
@@ -11,20 +14,44 @@ parser.add_argument("--push_to_hub", action="store_true", help="Whether to push 
 parser.add_argument("--load_from_hub_instead_of_disk", action="store_true", help="Whether to load the input dataset by name from the Hugging Face hub. If this argument isn't specified then the input dataset will be loaded from a directory of the same name on the disk.")
 args = parser.parse_args()
 
-if args.load_from_hub_instead_of_disk:
-    if args.split is None:
-        ds = load_dataset(args.input_dataset_name)
+
+def list_folders(directory):
+    # Get a list of all the files in the directory
+    all_files = os.listdir(directory)
+    # Initialize an empty list to store the folders
+    folders = []
+    # Iterate through the files in the directory
+    for file in all_files:
+        # Check if the file is a directory
+        if os.path.isdir(os.path.join(directory, file)):
+            # If it is, append it to the list of folders
+            folders.append(file)
+    # Return the list of folders
+    return folders
+
+
+def data_wikipedia_filter(args, input_dir):
+    input_dir = args.input_dataset_name + '/' + input_dir
+    if args.load_from_hub_instead_of_disk:
+        if args.split is None:
+            ds = load_dataset(input_dir)
+        else:
+            ds = load_dataset(input_dir, split=split)
     else:
-        ds = load_dataset(args.input_dataset_name, split=args.split)
-else:
-    if args.split is None:
-        ds = load_from_disk(args.input_dataset_name)
-    else:
-        ds = load_from_disk(args.input_dataset_name)[args.split]
+        if args.split is None:
+            ds = load_from_disk(input_dir)
+        else:
+            ds = load_from_disk(input_dir)[args.split]
+    
+    ds = ds.filter(lambda example: not example[args.url_column].startswith("https://en.wikipedia.org/wiki/"), num_proc=args.num_proc)
 
-ds = ds.filter(lambda example: not example[args.url_column].startswith("https://en.wikipedia.org/wiki/"), num_proc=args.num_proc)
+    ds.save_to_disk(args.output_dataset_name+'/'+input_dir)
 
-ds.save_to_disk(args.output_dataset_name)
+    if args.push_to_hub:
+        ds.push_to_hub(args.output_dataset_name)
 
-if args.push_to_hub:
-    ds.push_to_hub(args.output_dataset_name)
+
+chunks_dir = list_folders(args.input_dataset_name)
+for each_dir in chunks_dir:
+        Process(target=data_wikipedia_filter, args=(args,each_dir,)).start()
+
