@@ -1,6 +1,6 @@
 from pathlib import Path
 from os import walk
-from multiprocessing import Process
+from multiprocessing import Process, Pool 
 import pyarrow.parquet as pq
 import argparse
 import os
@@ -34,7 +34,7 @@ def create_chunks(file,dataset_dir=args.input_dir):
     print('create chunks folder')
     chunks_dir = Path('chunks').absolute()
     if chunks_dir.exists():
-        print('chunks folder already exist, files will be overwritten')
+        print('chunks folder already exist')
     else:
         chunks_dir.mkdir(mode=0o777)
     print('chunks folder ready')
@@ -48,7 +48,7 @@ def create_chunks(file,dataset_dir=args.input_dir):
     except FileExistsError:
         print("File exsists")
 
-    for idx,batch in enumerate(parquet_file.iter_batches(batch_size=100000)):
+    for idx,batch in enumerate(parquet_file.iter_batches(batch_size=5000)):
         print("RecordBatch No.{}".format(idx))
         print("Batch type: ",type(batch))
         print("here you can do preprocessing steps")
@@ -61,8 +61,9 @@ def create_chunks(file,dataset_dir=args.input_dir):
         writer.write_batch(batch)
         writer.close()
             
+with Pool(128) as p:
+        print(p.map(create_chunks, list_files(args.input_dir)))            
             
-            
-for each_file in list_files(args.input_dir):
-        Process(target=create_chunks, args=(each_file,)).start()
+# for each_file in list_files(args.input_dir):
+#         Process(target=create_chunks, args=(each_file,)).start()
 

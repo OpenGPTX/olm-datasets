@@ -22,7 +22,6 @@ python remove_wikipedia_urls.py --input_dataset_name=/beegfs/ws/1/haab446e-Datas
 
 
 #filtering (to be reviewed) 
-
 python data-preparation/preprocessing/training/01a_catalogue_cleaning_and_filtering/clean.py --dataset-path=composed_dataset_without_wikipedia_url_de/beegfs/ws/1/haab446e-Dataset-pipe/olm-datasets/pipeline_scripts/common_crawl/results/de  --load-arrow-file --preprocessings "replace_newline_with_space" "remove_lines_with_code" "remove_html_spans" "remove_html_spans_sanad" "remove_wiki_mojibake" "strip_substrings_en_wiktionary" "filter_remove_empty_docs"  "filter_small_docs" --save-path=cc_filtered --batch-size=5
 
 

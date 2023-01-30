@@ -2,7 +2,7 @@ from datasets import load_dataset
 from tqdm import tqdm
 import pandas as pd
 import subprocess
-from multiprocessing import Process
+from multiprocessing import Process, Pool
 from os import walk, mkdir, path
 from shutil import move, rmtree
 import dateutil
@@ -47,17 +47,25 @@ def list_folders(directory):
 chunks_dir = list_folders(input_dir)
 
 
-def data_pipeline(input_dir,chunk_dir):
-    ds = load_dataset(input_dir+'/'+chunk_dir)
-    ds_de = ds.filter(lambda example: example["language"]=='de')
-    ds_en = ds.filter(lambda example: example["language"]=='en')
-    ds_de.save_to_disk('results/de/'+output_dir+'_de_'+str(uuid.uuid4()))
-    ds_en.save_to_disk('results/en/'+output_dir+'_en_'+str(uuid.uuid4()))
+def data_pipeline(chunk_dir,input_dir=input_dir):
+    try: 
+        ds = load_dataset(input_dir+'/'+chunk_dir)
+        ds_de = ds.filter(lambda example: example["language"]=='de')
+        ds_en = ds.filter(lambda example: example["language"]=='en')
+        ds_de.save_to_disk('results/de/'+output_dir+'_de_'+str(uuid.uuid4()))
+        ds_en.save_to_disk('results/en/'+output_dir+'_en_'+str(uuid.uuid4()))
+
+    except datasets.data_files.EmptyDatasetError:
+        print(f"datasets.data_files.EmptyDatasetError for {input_dir+'/'+chunk_dir}")
+        
+        
+
+# for each_dir in chunks_dir:
+#         Process(target=data_pipeline, args=(each_dir,input_dir,)).start()
 
 
-for each_dir in chunks_dir:
-        Process(target=data_pipeline, args=(input_dir,each_dir,)).start()
-
+with Pool(128) as p:
+        print(p.map(data_pipeline, chunks_dir))   
 
 t1 = time.time()
 print(f"Performance time {t1-t0}")
