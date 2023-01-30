@@ -39,6 +39,7 @@ pip install -r olm-datasets/requirements.txt
 pip install underthesea
 pip install indic-nlp-library
 pip install stanza
+pip install stanza_batch
 
 #indic nlp resources
 git clone https://github.com/anoopkunchukuttan/indic_nlp_resources.git

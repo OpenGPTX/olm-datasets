@@ -4,6 +4,7 @@ from multiprocessing import Process
 import pyarrow.parquet as pq
 import argparse
 import os
+import uuid
 
 parser = argparse.ArgumentParser(description="Turns downloads from download_common_crawl.py into a Hugging Face dataset, split by language (language is identified using a FastText model). The dataset has a timestamp column for the time it was crawled, along with a url column and, of course, a text column.")
 parser.add_argument("--input_dir", help="The directory of the .parquet files", required=True)
@@ -42,7 +43,10 @@ def create_chunks(file,dataset_dir=args.input_dir):
     print('reading file {0} succeeded'.format(file))
     parquet_file = pq.ParquetFile(dataset_dir+file)
     chunk_file_dir = Path('chunks/'+file.split('.parquet')[0].split('.snappy')[0].split('/')[-1]).absolute()
-    chunk_file_dir.mkdir(mode=0o777)
+    try: 
+        chunk_file_dir.mkdir(mode=0o777)
+    except FileExistsError:
+        print("File exsists")
 
     for idx,batch in enumerate(parquet_file.iter_batches(batch_size=100000)):
         print("RecordBatch No.{}".format(idx))
@@ -52,7 +56,7 @@ def create_chunks(file,dataset_dir=args.input_dir):
         #chunk_idx_dir.mkdir(mode=0o777)
 
 
-        writer = pq.ParquetWriter(f"chunks/{file.split('.parquet')[0].split('.snappy')[0].split('/')[-1]}/chunk_{idx}.parquet", batch.schema)
+        writer = pq.ParquetWriter(f"chunks/{file.split('.parquet')[0].split('.snappy')[0].split('/')[-1]}/chunk_{uuid.uuid4()}.parquet", batch.schema)
 
         writer.write_batch(batch)
         writer.close()

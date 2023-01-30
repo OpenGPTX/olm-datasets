@@ -72,7 +72,7 @@ def deduplication(args, input_dir):
             last_index = len(ds_shard) - 1
             len_before = len(ds_shard)
             ds_shard = ds_shard.filter(lambda example, index: check_for_ending_example_in_cluster(example, index, temp_column_name, last_index), num_proc=args.num_proc, with_indices=True)
-            ds_shard = ds_shard.remove_columns(temp_column_name)
+            # ds_shard = ds_shard.remove_columns(temp_column_name)
             print(f"Got rid of all examples sharing first 100 bytes of text, as a speedup step. Removed {len_before - len(ds_shard)} from {len_before} examples.")
 
             # Do the same thing with the ending 100 bytes of text.
@@ -84,7 +84,7 @@ def deduplication(args, input_dir):
             last_index = len(ds_shard) - 1 
             len_before = len(ds_shard)
             ds_shard = ds_shard.filter(lambda example, index: check_for_ending_example_in_cluster(example, index, temp_column_name, last_index), num_proc=args.num_proc, with_indices=True)
-            ds_shard = ds_shard.remove_columns(temp_column_name)
+            # ds_shard = ds_shard.remove_columns(temp_column_name)
             print(f"Got rid of all examples sharing last 100 bytes of text, as a speedup step. Removed {len_before - len(ds_shard)} from {len_before} examples.") 
 
         else:
@@ -100,7 +100,7 @@ def deduplication(args, input_dir):
 
             last_index = len(ds_shard) - 1
             ds_shard = ds_shard.filter(lambda example, index: check_for_ending_example_in_cluster(example, index, temp_column_name, last_index), num_proc=args.num_proc, with_indices=True)
-            ds_shard = ds_shard.remove_columns(temp_column_name)
+            # ds_shard = ds_shard.remove_columns(temp_column_name)
             print("Got rid of exact duplicates")
 
         if path.exists(".cache"):
@@ -153,5 +153,3 @@ chunks_dir = list_folders(args.input_dataset_name)
         
 for each_dir in chunks_dir:
         Process(target=deduplication, args=(args,each_dir,)).start()
-
-
