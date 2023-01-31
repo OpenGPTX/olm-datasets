@@ -2,11 +2,15 @@
 
 # Adapted Piepeline for OpenGPTX Datasets
 <p align="center">
-  <img src="https://github.com/OpenGPTX/olm-datasets/blob/main/pipeline_scripts/common_crawl/prep-pipeline.drawio.svg"/>
+  <img src="https://github.com/OpenGPTX/olm-datasets/blob/multiprocessing/pipeline_scripts/common_crawl/prep-pipeline.drawio.svg"/>
 </p>
 <p align="center">
-  <img src="https://github.com/OpenGPTX/olm-datasets/blob/multiprocessing/pipeline_scripts/common_crawl/manual_chunking.drawio.png/>
+  <img src="https://github.com/OpenGPTX/olm-datasets/blob/multiprocessing/pipeline_scripts/common_crawl/manual_chunking.drawio.png"/>
 </p>
+
+<!-- ![preprocessing pipeline](https://github.com/OpenGPTX/olm-datasets/blob/multiprocessing/pipeline_scripts/common_crawl/prep-pipeline.drawio.svg)
+
+![preprocessing pipeline with manual chunking](https://github.com/OpenGPTX/olm-datasets/blob/multiprocessing/pipeline_scripts/common_crawl/manual_chunking.drawio.png) -->
 
 # Quick start
 This section provides all the commands that you need to generate a deduplicated and filtered dataset from Common Crawl, ready for pretraining!
