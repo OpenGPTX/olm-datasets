@@ -33,7 +33,7 @@ python merge_parquet_files.py --input_dir=composed_dataset_without_wikipedia_url
 
 ulimit -Sn 1000000 && python deduplicate.py --input_dataset_name=merged_composed_dataset --output_dataset_name=deduplicated_composed_dataset --text_column=text --remove_whole_example --num_proc=128
 
-
+#TODO Split data 
 
 
 
