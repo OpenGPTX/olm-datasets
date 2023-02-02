@@ -66,7 +66,7 @@ def data_pipeline(chunk_dir,input_dir=input_dir):
 #         Process(target=data_pipeline, args=(each_dir,input_dir,)).start()
 
 
-with Pool(128) as p:
+with Pool() as p:
         print(p.map(data_pipeline, chunks_dir))   
 
 t1 = time.time()

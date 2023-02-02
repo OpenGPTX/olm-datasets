@@ -1,4 +1,4 @@
-from datasets import load_dataset, concatenate_datasets
+from datasets import load_dataset, load_from_disk, concatenate_datasets
 import multiprocessing as mp 
 import argparse
 import os
@@ -16,7 +16,7 @@ args = parser.parse_args()
 
 if __name__ == "__main__":
    
-    ds = load_dataset(args.input_dir,split='train')
+    ds = load_from_disk(args.input_dir)
 
     ds = ds.train_test_split(test_size=float(args.split_percentage))
         

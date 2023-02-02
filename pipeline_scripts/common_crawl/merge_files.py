@@ -1,7 +1,8 @@
-from datasets import load_dataset, concatenate_datasets
+from datasets import load_dataset,load_from_disk, concatenate_datasets
 import multiprocessing as mp 
 import argparse
 import os
+# os.environ["OMP_NUM_THREADS"] = "1"
 
 
 
@@ -26,7 +27,7 @@ def list_folders(directory):
     return folders
 
 def merge_chunks(input_dir,dataset_dir,results):
-    results[0] = concatenate_datasets([results[0],load_dataset(os.path.join(dataset_dir,each_dir),split='train')])
+    results[0] = concatenate_datasets([results[0],load_from_disk(os.path.join(dataset_dir,each_dir))])
     
 
 
@@ -35,7 +36,7 @@ if __name__ == "__main__":
         results = manager.list()
         processes = []
         chunks_dir = list_folders(args.input_dir)
-        results.append(load_dataset(os.path.join(args.input_dir,chunks_dir[0]),split='train')) 
+        results.append(load_from_disk(os.path.join(args.input_dir,chunks_dir[0]))) 
         for each_dir in chunks_dir[1:]:
             p = mp.Process(target=merge_chunks, args=(each_dir,args.input_dir,results))
             p.start()

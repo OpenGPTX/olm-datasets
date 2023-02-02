@@ -19,16 +19,16 @@ parser.add_argument("--chunks", type=int, default=1, help="Deduplication can be 
 parser.add_argument("--load_from_hub_instead_of_disk", action="store_true", help="Whether to load the input dataset from the Hugging Face Hub. If this argument is not used, then it is assumed that the input dataset is stored locally on the disk.")
 args = parser.parse_args()
 
-if args.load_from_hub_instead_of_disk:
-    if args.split is None:
-        ds = load_dataset(args.input_dataset_name)
-    else:
-        ds = load_dataset(args.input_dataset_name, split=args.split)
+# if args.load_from_hub_instead_of_disk:
+#     if args.split is None:
+#         ds = load_dataset(args.input_dataset_name)
+#     else:
+#         ds = load_dataset(args.input_dataset_name, split=args.split)
+# else:
+if args.split is None:
+    ds = load_from_disk(args.input_dataset_name)
 else:
-    if args.split is None:
-        ds = load_from_disk(args.input_dataset_name)
-    else:
-        ds = load_from_disk(args.input_dataset_name)[args.split]
+    ds = load_from_disk(args.input_dataset_name)[args.split]
 
 deduplicated_ds_shard_list = []
 for ds_shard_index in range(args.chunks):
@@ -52,7 +52,7 @@ for ds_shard_index in range(args.chunks):
         last_index = len(ds_shard) - 1
         len_before = len(ds_shard)
         ds_shard = ds_shard.filter(lambda example, index: check_for_ending_example_in_cluster(example, index, temp_column_name, last_index), num_proc=args.num_proc, with_indices=True)
-        ds_shard = ds_shard.remove_columns(temp_column_name)
+        # ds_shard = ds_shard.remove_columns(temp_column_name)
         print(f"Got rid of all examples sharing first 100 bytes of text, as a speedup step. Removed {len_before - len(ds_shard)} from {len_before} examples.")
 
         # Do the same thing with the ending 100 bytes of text.
@@ -64,7 +64,7 @@ for ds_shard_index in range(args.chunks):
         last_index = len(ds_shard) - 1 
         len_before = len(ds_shard)
         ds_shard = ds_shard.filter(lambda example, index: check_for_ending_example_in_cluster(example, index, temp_column_name, last_index), num_proc=args.num_proc, with_indices=True)
-        ds_shard = ds_shard.remove_columns(temp_column_name)
+        # ds_shard = ds_shard.remove_columns(temp_column_name)
         print(f"Got rid of all examples sharing last 100 bytes of text, as a speedup step. Removed {len_before - len(ds_shard)} from {len_before} examples.") 
 
     else:
@@ -80,7 +80,7 @@ for ds_shard_index in range(args.chunks):
 
         last_index = len(ds_shard) - 1
         ds_shard = ds_shard.filter(lambda example, index: check_for_ending_example_in_cluster(example, index, temp_column_name, last_index), num_proc=args.num_proc, with_indices=True)
-        ds_shard = ds_shard.remove_columns(temp_column_name)
+        # ds_shard = ds_shard.remove_columns(temp_column_name)
         print("Got rid of exact duplicates")
 
     if path.exists(".cache"):

@@ -61,7 +61,7 @@ def create_chunks(file,dataset_dir=args.input_dir):
         writer.write_batch(batch)
         writer.close()
             
-with Pool(128) as p:
+with Pool() as p:
         print(p.map(create_chunks, list_files(args.input_dir)))            
             
 # for each_file in list_files(args.input_dir):
