@@ -25,12 +25,16 @@ python remove_wikipedia_urls.py --input_dataset_name=/beegfs/ws/1/haab446e-Datas
 python data-preparation/preprocessing/training/01a_catalogue_cleaning_and_filtering/clean.py --dataset-path=composed_dataset_without_wikipedia_url_de/beegfs/ws/1/haab446e-Dataset-pipe/olm-datasets/pipeline_scripts/common_crawl/results/de  --load-arrow-file --preprocessings "replace_newline_with_space" "remove_lines_with_code" "remove_html_spans" "remove_html_spans_sanad" "remove_wiki_mojibake" "strip_substrings_en_wiktionary" "filter_remove_empty_docs"  "filter_small_docs" --save-path=cc_filtered --batch-size=5
 
 
+#merge cleaned chunks back into one dataset 
+python merge_parquet_files.py --input_dir=composed_dataset_without_wikipedia_url_de/beegfs/ws/1/haab446e-Dataset-pipe/olm-datasets/pipeline_scripts/common_crawl/results/de --output_dir=merged_composed_dataset
+
 
 #Deduplication (to be reviewed) 
 
-ulimit -Sn 1000000 && python deduplicate.py --input_dataset_name=composed_dataset_without_wikipedia_url_de/beegfs/ws/1/haab446e-Dataset-pipe/olm-datasets/pipeline_scripts/common_crawl/results/de/ --output_dataset_name=deduplicated_composed_dataset --text_column=text --remove_whole_example --num_proc=128
+ulimit -Sn 1000000 && python deduplicate.py --input_dataset_name=merged_composed_dataset --output_dataset_name=deduplicated_composed_dataset --text_column=text --remove_whole_example --num_proc=128
 
-
+#Split data 
+python split.py --input_dir=deduplicated_composed_dataset --output_dir=final_dataset --split_percentage=0.8
 
 
 
