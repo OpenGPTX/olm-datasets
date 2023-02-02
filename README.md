@@ -22,10 +22,11 @@ cd path/to/Dataset-pipe
 git clone --recursive git@github.com:OpenGPTX/olm-datasets.git 
 cp olm-datasets/setup.sh .
 cp olm-datasets/activate.sh .
+cp olm-datasets/data_pipeline.sh .
 ```
 For executing the Setup (and all processing steps) allocate resources first:
 ```
-srun --pty --ntasks=1 --cpus-per-task=4 --time=1:00:00 --mem-per-cpu=1700 bash -l
+srun --pty --ntasks=1 --cpus-per-task=128 --time=2:00:00 --mem-per-cpu=1700 bash -l
 ```
 Afterwards, do the setup:
 ```

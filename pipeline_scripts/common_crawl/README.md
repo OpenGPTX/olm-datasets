@@ -26,6 +26,8 @@ Detailed Informations can be found [here](https://github.com/OpenGPTX/olm-datase
 ## Every time
 
 ### On Taurus
+
+### Interactive Execution of code (on Shell)
 Allocate Resources - You will allloacte a complete node here! If you want to test things on small datasets, use only ``
 ```
 srun --pty --partition romeo --ntasks=1 --cpus-per-task=128 --time=2:00:00 --mem-per-cpu=1972 bash -l
@@ -59,4 +61,12 @@ ulimit -Sn 1000000 && python deduplicate.py --input_dataset_name=cc_filtered --o
 Optionally, you can implement the current entire pipeline at once by using `run_pipeline.sh` (please make sure to check all the parameters and setup all the required pre-requisites)
 ```
 sh run_pipeline.sh
+```
+### Batch based Implementation 
+
+You can directly execute the pipeline code by running the `data_pipeline.sh` script (after reading it and modifying the inputs) as follows: 
+
+```
+sbatch data_pipeline.sh
+
 ```
