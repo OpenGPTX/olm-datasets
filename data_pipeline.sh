@@ -2,7 +2,7 @@
 #SBATCH --job-name=data_pipeline
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1          # crucial - only 1 task per dist per node!
-#SBATCH --cpus-per-task=64         # number of cores per tasks
+#SBATCH --cpus-per-task=128         # number of cores per tasks
 #SBATCH --partition=julia
 #SBATCH --time 2:00:00              # maximum execution time (HH:MM:SS)
 #SBATCH --output=data_pipeline.out           # output file name
@@ -10,22 +10,32 @@
 #SBATCH --mail-user=hammam.abdelwahab@mailbox.tu-dresden.de
 
 
-# Install all dependencies
-sh setup.sh 
-
+# Install all dependencies before you execute the pipeline 
 source activate.sh
 
-#please change the directory to your corresponding workspace 
-export  HF_DATASETS_CACHE=/beegfs/ws/1/haab446e-Dataset-pipe/cache
-export  INPUT_DATASET=/scratch/ws/0/s6690609-traindata/generated_corpuses/20221121/train/
+while getopts d:f: flag
+do
+    case "${flag}" in
+        f) FILE_DIR=${OPTARG};;
+        d) WORKING_DIR=${OPTARG};;
+    esac
+done
 
-cd olm-datasets/pipeline_scripts/common_crawl
+echo "Working Directory for Preprocessing: $WORKING_DIR"
+echo "Dataset to be Preprocessed: $FILE_DIR"
+
+
+
+#please change the directory to your corresponding workspace 
+export  HF_DATASETS_CACHE=$WORKING_DIR/cache
+
+cd $WORKING_DIR/olm-datasets/pipeline_scripts/common_crawl
 
 # #split parquet files into smaller chunks
-python create_parquet_chunks.py --input_dir=/scratch/ws/0/s6690609-traindata/generated_corpuses/20221121/train/
+python create_parquet_chunks.py --input_dir=$FILE_DIR
 
 # #convert parquet files (per chunk) into hugging face files 
-python get_hf_dataset_from_parquet.py --input_dir=/beegfs/ws/1/haab446e-Dataset-pipe/olm-datasets/pipeline_scripts/common_crawl/chunks --output_dataset_name=cc_raw --num_proc=128
+python get_hf_dataset_from_parquet.py --input_dir=$WORKING_DIR/olm-datasets/pipeline_scripts/common_crawl/chunks --output_dataset_name=cc_raw --num_proc=128
 
 
 # #remove wikipedia urls e.g german dataset (to be reviewed) 
