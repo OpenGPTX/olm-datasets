@@ -59,7 +59,9 @@ ulimit -Sn 1000000 && python deduplicate.py --input_dataset_name=cc_filtered --o
 ```
 
 Optionally, you can implement the current entire pipeline at once by using `run_pipeline.sh` (please make sure to check all the parameters and setup all the required pre-requisites)
-```
+<span style="color:  red"> NOTE: Make sure that you are using the following command in your interactive Session and NOT on the login nodes! </span>.
+```diff
+- NOTE: Make sure that you are using the following command in your interactive Session and NOT on the login nodes!
 sh run_pipeline.sh
 ```
 ### Batch based Implementation 
