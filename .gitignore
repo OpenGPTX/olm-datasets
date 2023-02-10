@@ -1,1 +1,4 @@
 pipeline_scripts/common_crawl/sp_kenlm_ft_models/
+*.out
+*.err
+*.parquet
