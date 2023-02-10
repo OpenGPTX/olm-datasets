@@ -39,7 +39,7 @@ PROC=$(($SLURM_JOB_CPUS_PER_NODE*$SLURM_NNODES))
 
 # #split parquet files into smaller chunks
 echo "_______________Creating Chunks____________________"
-python create_parquet_chunks.py --input_dir=$FILE_DIR
+python create_parquet_chunks.py --input_dir=$FILE_DIR --num_proc=$PROC
 
 echo "_______________Convert Parquet Files______________"
 # #convert parquet files (per chunk) into hugging face files 
