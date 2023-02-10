@@ -54,8 +54,8 @@ def data_pipeline(chunk_dir,input_dir=input_dir):
         ds = load_dataset(input_dir+'/'+chunk_dir)
         ds_de = ds.filter(lambda example: example["language"]=='de')
         ds_en = ds.filter(lambda example: example["language"]=='en')
-        ds_de.save_to_disk('results/de/'+output_dir+'_de_'+str(uuid.uuid4()))
-        ds_en.save_to_disk('results/en/'+output_dir+'_en_'+str(uuid.uuid4()))
+        ds_de.save_to_disk(output_dir+'/results/de/'+'de_'+str(uuid.uuid4()))
+        ds_en.save_to_disk(output_dir+'/results/en/'+'en_'+str(uuid.uuid4()))
 
     except datasets.data_files.EmptyDatasetError:
         print(f"datasets.data_files.EmptyDatasetError for {input_dir+'/'+chunk_dir}")
