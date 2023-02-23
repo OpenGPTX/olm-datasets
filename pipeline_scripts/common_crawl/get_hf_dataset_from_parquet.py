@@ -1,10 +1,9 @@
-
 from datasets import load_dataset
 from tqdm import tqdm
 import datasets
 import pandas as pd
 import subprocess
-from multiprocessing import Process, Pool
+from multiprocessing import Process, Pool,set_start_method
 from os import walk, mkdir, path
 from shutil import move, rmtree
 import dateutil
@@ -14,7 +13,6 @@ import os
 import concurrent
 import time
 import uuid
-from multiprocessing import Process
 
 t0 = time.time()
 
@@ -45,13 +43,17 @@ def list_folders(directory):
             folders.append(file)
     # Return the list of folders
     return folders
+def list_parquet_files(input_dir):
+    all_files = glob.glob(os.path.join(input_dir,'*.parquet'))
+    return all_files
 
-chunks_dir = list_folders(input_dir)
-
+chunks_dir = list_parquet_files(input_dir)
+print(chunks_dir)
 
 def data_pipeline(chunk_dir,input_dir=input_dir):
-    try: 
-        ds = load_dataset(input_dir+'/'+chunk_dir)
+    try:
+        print("file_dir:",chunk_dir) 
+        ds = load_dataset(input_dir,data_files=chunk_dir)
         ds_de = ds.filter(lambda example: example["language"]=='de')
         ds_en = ds.filter(lambda example: example["language"]=='en')
         ds_de.save_to_disk(output_dir+'/results/de/'+'de_'+str(uuid.uuid4()))
@@ -66,8 +68,8 @@ def data_pipeline(chunk_dir,input_dir=input_dir):
 #         Process(target=data_pipeline, args=(each_dir,input_dir,)).start()
 
 
-with Pool() as p:
-        print(p.map(data_pipeline, chunks_dir))   
+with Pool(args.num_proc) as p:
+    print(p.map(data_pipeline, chunks_dir))   
 
 t1 = time.time()
 print(f"Performance time {t1-t0}")

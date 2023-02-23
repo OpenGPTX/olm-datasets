@@ -1,7 +1,8 @@
 from datasets import load_dataset, load_from_disk
 import argparse
 import os 
-from multiprocessing import Process 
+from multiprocessing import Process, set_start_method, Pool
+from itertools import repeat
 
 
 parser = argparse.ArgumentParser(description="Removes all examples from a Hugging Face dataset if they have a Wikipedia URL. This script is intened to be used if you eventually want to merge the dataset with a Wikipedia snapshot. In that case, examples from Wikipedia in this dataset are redundant.")
@@ -31,7 +32,7 @@ def list_folders(directory):
 
 
 def data_wikipedia_filter(args, input_dir):
-    input_dir = args.input_dataset_name + '/' + input_dir
+    input_dir = os.path.join(args.input_dataset_name,input_dir)
     if args.load_from_hub_instead_of_disk:
         if args.split is None:
             ds = load_dataset(input_dir)
@@ -43,15 +44,18 @@ def data_wikipedia_filter(args, input_dir):
         else:
             ds = load_from_disk(input_dir)[args.split]
     
-    ds = ds.filter(lambda example: not example[args.url_column].startswith("https://en.wikipedia.org/wiki/"), num_proc=args.num_proc)
-
-    ds.save_to_disk(args.output_dataset_name+'/'+input_dir)
+    ds = ds.filter(lambda example: not example[args.url_column].startswith("https://en.wikipedia.org/wiki/"))
+    
+    save_path = os.path.join(args.output_dataset_name, os.path.basename(input_dir))
+    ds.save_to_disk(save_path)
 
     if args.push_to_hub:
         ds.push_to_hub(args.output_dataset_name)
 
-
-chunks_dir = list_folders(args.input_dataset_name)
-for each_dir in chunks_dir:
-        Process(target=data_wikipedia_filter, args=(args,each_dir,)).start()
-
+def main():
+    set_start_method("spawn")
+    chunks_dir = list_folders(args.input_dataset_name)
+    with Pool(args.num_proc) as p:
+            p.starmap(data_wikipedia_filter,zip(repeat(args),chunks_dir))
+if __name__ == "__main__":
+    main()

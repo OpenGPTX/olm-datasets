@@ -45,9 +45,9 @@ def main():
                                                  "split by language (language is identified using a FastText model). The dataset" \
                                                  "has a timestamp column for the time it was crawled, along with a url column and, of course, a text column.")
     parser.add_argument("--input_dir", help="The directory of the .parquet files", required=True)
-    parser.add_arguments("--num_proc", help="Number of cpus you have or want to use,", required=True)
+    parser.add_argument("--num_proc", help="Number of cpus you have or want to use,", required=True)
     args = parser.parse_args()
-
+    args.num_proc = int(args.num_proc)
     print('reading files as batches')
     set_start_method("spawn")
     with  Pool(args.num_proc) as p:
